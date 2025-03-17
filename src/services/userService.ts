@@ -50,5 +50,5 @@ export const login = async ({ email, password }: LoginParams) => {
 
 const secretKey = '3K4h7s9Lp2Qr8v1Xw5t6Yz0uAeBcDdEfGgHhIiJjJkKlLmMnNoPqRsStTuUvVwWxXyYzZ';
 const generateJWT = (data: any) => {
-    return jwt.sign(data, secretKey, { expiresIn: "1h" });
+    return jwt.sign(data, secretKey);
 }
