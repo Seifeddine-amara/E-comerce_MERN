@@ -97,3 +97,30 @@ export const updateItemInCart = async ({ userId, productId, quantity }: UpdateIt
     await cart.save();
     return { data: cart, statusCode: 200 };
 };
+
+interface DeleteItemInCart {
+    userId: string;
+    productId: any;
+}
+export const deleteItemInCart = async ({ userId, productId }: DeleteItemInCart) => {
+    const cart = await getActiveCartForUser({ userId });
+    const existInCart = cart.items.find((p) => p.product.toString() === productId);
+    if (!existInCart) {
+        return { data: "Item not found", statusCode: 404 };
+    }
+    cart.totalAmount -= existInCart.quantity * existInCart.unitPrice;
+    cart.items = cart.items.filter((p) => p.product.toString() !== productId);
+    await cart.save();
+    return { data: cart, statusCode: 200 };
+}
+
+interface ClearCart {
+    userId: string;
+}
+export const clearCart = async ({ userId }: ClearCart) => {
+    const cart = await getActiveCartForUser({ userId });
+    cart.items = [];
+    cart.totalAmount = 0;
+    await cart.save();
+    return { data: cart, statusCode: 200 };
+}
