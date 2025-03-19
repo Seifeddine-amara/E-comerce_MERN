@@ -10,7 +10,7 @@ interface CreateCartForUser {
 
 
 const createCartForUser = async ({ userId }: CreateCartForUser) => {
-    const cart = await cartModel.create({ userId, totalAmount:0 });
+    const cart = await cartModel.create({ userId, totalAmount: 0 });
     await cart.save();
     return cart;
 };
@@ -35,7 +35,7 @@ interface AddItemToCart {
 export const addItemToCart = async ({ userId, productId, quantity }: AddItemToCart) => {
     const cart = await getActiveCartForUser({ userId });
 
-    const existInCart = cart.items.find((p) => p.product.toString() === productId); 
+    const existInCart = cart.items.find((p) => p.product.toString() === productId);
     if (existInCart) {
         const product = await productModel.findById(productId);
         if (!product) {
@@ -48,17 +48,18 @@ export const addItemToCart = async ({ userId, productId, quantity }: AddItemToCa
         cart.totalAmount += product.price * quantity;
         await cart.save();
         return { data: cart, statusCode: 200 };
-    } 
-   
+    }
+
     //Fetch the product
     const product = await productModel.findById(productId);
+
     if (!product) {
         return { data: "Product not found", statusCode: 404 };
     }
     if (product.stock < quantity) {
         return { data: "Not enough stock", statusCode: 400 };
     }
-    
+
     //Add the product to the cart
     cart.items.push({
         product: productId,
@@ -69,6 +70,30 @@ export const addItemToCart = async ({ userId, productId, quantity }: AddItemToCa
     cart.totalAmount += product.price * quantity;
     await cart.save();
     return { data: cart, statusCode: 200 };
+};
 
-
+interface UpdateItemInCart {
+    userId: string;
+    productId: any;
+    quantity: number;
 }
+
+export const updateItemInCart = async ({ userId, productId, quantity }: UpdateItemInCart) => {
+    const cart = await getActiveCartForUser({ userId });
+    const existInCart = cart.items.find((p) => p.product.toString() === productId);
+    if (!existInCart) {
+        return { data: "Item not found", statusCode: 404 };
+    }
+    const product = await productModel.findById(productId);
+    if (!product) {
+        return { data: "Product not found", statusCode: 404 };
+    }
+    if (product.stock < quantity) {
+        return { data: "Not enough stock", statusCode: 400 };
+    }
+    cart.totalAmount -= existInCart.quantity * existInCart.unitPrice;   //Subtract the old total amount
+    existInCart.quantity = quantity;                                    //Update the quantity
+    cart.totalAmount += existInCart.quantity * existInCart.unitPrice;   //Add the new total amount
+    await cart.save();
+    return { data: cart, statusCode: 200 };
+};

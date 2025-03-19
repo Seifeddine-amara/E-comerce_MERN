@@ -7,7 +7,7 @@ import cartRoute from "./routes/cartRoute";
 
 
 const app = express();
-const PORT = 3000;
+const PORT = 3001;
 
 mongoose
   .connect("mongodb://localhost:27017/ecommerce")
