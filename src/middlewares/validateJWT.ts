@@ -16,8 +16,7 @@ const validateJWT = (req: ExtendRequest, res: Response, next: NextFunction) => {
         res.status(403).send('Token is missing');
         return;
     }
-    const SECRET = "3K4h7s9Lp2Qr8v1Xw5t6Yz0uAeBcDdEfGgHhIiJjJkKlLmMnNoPqRsStTuUvVwWxXyYzZ";
-    jwt.verify(token, SECRET, async (err, payload) => {
+    jwt.verify(token,  process.env.JWT_SECRET as string , async (err, payload) => {
         if (err) {
             res.status(403).send('Invalid token');
             return;

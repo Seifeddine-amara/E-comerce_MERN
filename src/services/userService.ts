@@ -48,7 +48,7 @@ export const login = async ({ email, password }: LoginParams) => {
     return { data: generateJWT({ email, firstName: findUser.firstName, lastName: findUser.lastName }), statusCode: 200 };
 }
 
-const secretKey = '3K4h7s9Lp2Qr8v1Xw5t6Yz0uAeBcDdEfGgHhIiJjJkKlLmMnNoPqRsStTuUvVwWxXyYzZ';
+
 const generateJWT = (data: any) => {
-    return jwt.sign(data, secretKey);
+    return jwt.sign(data, process.env.JWT_SECRET as string, { expiresIn: '1h' });
 }
