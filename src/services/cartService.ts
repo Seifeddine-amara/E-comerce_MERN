@@ -1,6 +1,7 @@
 import { ObjectId } from "mongoose";
 import { cartModel } from "../models/cartModel";
 import productModel from "../models/productModel";
+import { IOrderItem, orderModel } from "../models/orderModel";
 
 
 
@@ -123,4 +124,42 @@ export const clearCart = async ({ userId }: ClearCart) => {
     cart.totalAmount = 0;
     await cart.save();
     return { data: cart, statusCode: 200 };
+}
+
+interface Checkout {
+    userId: string;
+    adress: string;
+}
+export const checkout = async ({ userId, adress }: Checkout) => {
+    if (!adress) {
+        return { data: "Adress is required", statusCode: 400 };
+    }
+    const cart = await getActiveCartForUser({ userId });
+    const orderItems: IOrderItem[] = [];
+    //Loop cartItems and create orderItems
+    for (const item of cart.items) {
+        const product = await productModel.findById(item.product);
+        if (!product) {
+            return { data: "Product not found", statusCode: 404 };
+        }
+        const orderItem: IOrderItem = {
+            productTitle: product.title,
+            productImage: product.image,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice
+        };
+        orderItems.push(orderItem);
+    }
+    const order = await orderModel.create({
+        userId,
+        items: orderItems,
+        totalAmount: cart.totalAmount,
+        adress
+    });
+    await order.save();
+    //update the cart status
+    cart.status = "completed";
+    await cart.save();
+
+    return { data: order, statusCode: 200 };
 }
