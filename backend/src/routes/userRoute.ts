@@ -17,7 +17,7 @@ router.post('/register', async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
     const result = await register({ firstName, lastName, email, password });
-    res.status(result.statusCode).send(result.data);
+    res.status(result.statusCode).json(result.data);
   } catch (err) {
     res.status(500).send(err);
   }
@@ -28,7 +28,7 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     const checkInfo = await login({ email, password });
-    res.status(checkInfo.statusCode).send(checkInfo.data);
+    res.status(checkInfo.statusCode).json(checkInfo.data);
   } catch (err) {
     res.status(500).send(err);
   }
