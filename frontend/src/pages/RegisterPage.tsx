@@ -1,40 +1,58 @@
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import { useRef, useState } from "react";
 import { BASE_URL } from "../constants/baseUrl";
+import { useAuth } from "../context/Auth/AuthContext";
 
 function RegisterPage() {
+  const [error, setError] = useState("");
   const firstNameRef = useRef<HTMLInputElement>(null);
   const lastNameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
-  const [error, setError]=useState("");
+  const { login } = useAuth();
 
-  const onSubmit = async() => {
+  const onSubmit = async () => {
     const firstName = firstNameRef.current?.value;
     const lastName = lastNameRef.current?.value;
     const email = emailRef.current?.value;
     const password = passwordRef.current?.value;
-     console.log(firstName, lastName , email , password)
-     const response = await fetch (`${BASE_URL}/user/register`,{
-        method : "POST",
-        headers: {
-            "Content-Type" : "application/json"
-        },
-        body : JSON.stringify({
-            firstName,
-            lastName,
-            email,
-            password
-        }),
-     });
-     if(!response.ok){
-        setError(await response.json());
-        return;
-     }
-     const data = await response.json();
-     console.log(data);
-  }
+
+    //Validate the form data
+    if (!firstName || !lastName || !email || !password) {
+      setError("Check submitted data")
+      return;
+    }
+
+    //console.log(firstName, lastName, email, password);
+
+    //Make the call to API to create the user
+    const response = await fetch(`${BASE_URL}/user/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        email,
+        password,
+      }),
+    });
+
+    if (!response.ok) {
+      setError(await response.json());
+      return;
+    }
+    const token = await response.json();
+    if (!token) {
+      setError("Incorrect Token");
+      return;
+    }
+    login(email, token);
+
+    console.log(token);
+  };
 
   return (
     <Container
@@ -70,12 +88,23 @@ function RegisterPage() {
           textAlign: "center",
         }}
       >
-        <TextField inputRef={firstNameRef} label="First Name" name="firstName" />
+        <TextField
+          inputRef={firstNameRef}
+          label="First Name"
+          name="firstName"
+        />
         <TextField inputRef={lastNameRef} label="Last Name" name="lastName" />
         <TextField inputRef={emailRef} label="Email" name="email" />
-        <TextField inputRef={passwordRef} label="Password" name="password" type="password" />
-        <Button variant="contained" onClick={onSubmit}>Register</Button>
-        {error && <Typography sx={{color:"red"}}> {error}</Typography>}
+        <TextField
+          inputRef={passwordRef}
+          label="Password"
+          name="password"
+          type="password"
+        />
+        <Button variant="contained" onClick={onSubmit}>
+          Register
+        </Button>
+        {error && <Typography sx={{ color: "red" }}> {error}</Typography>}
       </Box>
     </Container>
   );
