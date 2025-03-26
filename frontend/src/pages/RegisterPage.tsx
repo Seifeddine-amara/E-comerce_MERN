@@ -2,6 +2,7 @@ import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import { useRef, useState } from "react";
 import { BASE_URL } from "../constants/baseUrl";
 import { useAuth } from "../context/Auth/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 function RegisterPage() {
   const [error, setError] = useState("");
@@ -9,6 +10,8 @@ function RegisterPage() {
   const lastNameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+
+  const navigate = useNavigate();
 
   const { login } = useAuth();
 
@@ -50,6 +53,7 @@ function RegisterPage() {
       return;
     }
     login(email, token);
+    navigate("/");
 
     console.log(token);
   };
