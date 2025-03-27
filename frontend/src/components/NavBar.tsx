@@ -12,11 +12,12 @@ import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 import Grid from "@mui/material/Grid";
 import { useAuth } from "../context/Auth/AuthContext";
-import { Button } from "@mui/material";
+import { Badge, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { ShoppingCart } from "@mui/icons-material";
 
 function NavBar() {
-  const { username, token, isAuthenticated } = useAuth();
+  const { username, token, isAuthenticated, logout } = useAuth();
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );
@@ -32,7 +33,16 @@ function NavBar() {
   };
 
   const handleLogin = () => {
-    navigate("/login")
+    navigate("/login");
+  };
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+    handleCloseUserMenu();
+  };
+
+  const handleCart = () => {
+    navigate('/cart')
   }
 
   console.log("From NavBar", { username, token });
@@ -73,7 +83,18 @@ function NavBar() {
               </Typography>
             </Box>
 
-            <Box sx={{ flexGrow: 0 }}>
+            <Box
+              display="flex"
+              flexDirection="row"
+              gap={4}
+              alignItems="center"
+              justifyContent="center"
+            >
+              <IconButton aria-label="cart" onClick={handleCart}>
+                <Badge badgeContent={4} color="secondary">
+                  <ShoppingCart sx={{color:"#ffffff"}} />
+                </Badge>
+              </IconButton>
               {isAuthenticated ? (
                 <>
                   <Tooltip title="Open settings">
@@ -117,7 +138,7 @@ function NavBar() {
                         My Orders
                       </Typography>
                     </MenuItem>
-                    <MenuItem onClick={handleCloseUserMenu}>
+                    <MenuItem onClick={handleLogout}>
                       <Typography sx={{ textAlign: "center" }}>
                         Logout
                       </Typography>
@@ -125,7 +146,11 @@ function NavBar() {
                   </Menu>
                 </>
               ) : (
-                <Button variant="contained" color="success" onClick={handleLogin}>
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={handleLogin}
+                >
                   Login
                 </Button>
               )}
